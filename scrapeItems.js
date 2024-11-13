@@ -1,3 +1,5 @@
+import { globalState } from './state.js'
+
 export const scrapeItems = async () => {
   // 4.1 Begin scraping item elements
   console.log('Scraping data from links...')

@@ -1,4 +1,6 @@
-export const scrapeLinks = async (globalState) => {
+import { globalState } from './state.js'
+
+export const scrapeLinks = async () => {
   console.log('Initializing browser instance...')
   const browser = await puppeteer.launch({headless: "new"})
   console.log(`Starting scrape for ${globalState.numberOfPages} pages...`)

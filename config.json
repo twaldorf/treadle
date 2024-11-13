@@ -13,6 +13,19 @@
     "imageUrls",
     "url"
   ],
+  "selectors": {
+    "title": "#TemplateProduct > div > div > div > div.product__content > div > div > div > div.product__head > div > h1",
+    "designer": "",
+    "price": "#TemplateProduct > div > div > div > div.product__content > div > div > div > div.product__head > div > div > div.product__price > span:nth-child(2) > span",
+    "desc": "#TemplateProduct > div > div > div > div.product__content > div > div > div > div.product__tabs.tabs-wrapper.product-tabs-wrapper.product-tabs-wrapper--tabs > div > div.rte.tab-content.product-description.tab-content-0.current > div > div",
+    "fabric_recs": "#TemplateProduct > div > div > div > div.product__content > div > div > div > div.product__tabs.tabs-wrapper.product-tabs-wrapper.product-tabs-wrapper--tabs > div > div.rte.tab-content.tab-content-1",
+    "sizes": "#TemplateProduct > div > div > div > div.product__content > div > div > div > div.product__tabs.tabs-wrapper.product-tabs-wrapper.product-tabs-wrapper--tabs > div > div.rte.tab-content.tab-content-2 > div > div.available-table--wrapper",
+    "notions": "#TemplateProduct > div > div > div > div.product__content > div > div > div > div.product__tabs.tabs-wrapper.product-tabs-wrapper.product-tabs-wrapper--tabs > div > div.rte.tab-content.tab-content-1",
+    "additional_supplies": "",
+    "fabric_req": "#TemplateProduct > div > div > div > div.product__content > div > div > div > div.product__tabs.tabs-wrapper.product-tabs-wrapper.product-tabs-wrapper--tabs > div > div.rte.tab-content.tab-content-1",
+    "imageUrls": "#TemplateProduct > div > div > div > div.product__images > div.product__slides.product-single__photos",
+    "url": ""
+  },
   "checkpointThreshold": 10,
   "testLimit": 5,
   "retryLimit": 5,

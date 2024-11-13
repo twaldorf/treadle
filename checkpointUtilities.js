@@ -1,12 +1,11 @@
-// prefixes for saved and loaded checkpoints
-const Prefixes = {
-  INFO: "selectors_collected",
-  BROWSE: "item link collection",
-  LINKS:  "",
-  SCRAPE: "scrap",
-  CLEAN: "clean",
-  LLM: "final"
-}
+import { globalState } from './state.js'
+const { rl } = globalState
+import * as path from 'node:path'
+import * as fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Checkpoint saver
 export function checkpoint(state, stepTitle) {

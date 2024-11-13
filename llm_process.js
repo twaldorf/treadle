@@ -1,5 +1,7 @@
 import OpenAI from "openai";
 import fs from "fs";
+import { globalState } from './state.js'
+
 const openai = new OpenAI();
 
 function prep(obj) {
@@ -24,7 +26,8 @@ export async function processWithLLM(globalState) {
 }
 
 async function processOne(pattern, prompt, limit) {
-    const pattern_less = { title: pattern.title, designer: pattern.designer, desc: pattern.desc, notions: pattern.notions, fabric_rec: pattern.fabric_rec };
+    // const pattern_less = { title: pattern.title, designer: pattern.designer, desc: pattern.desc, notions: pattern.notions, fabric_rec: pattern.fabric_rec }
+    const pattern_less = pattern
 
     const completion = await openai.chat.completions.create({
         model: "gpt-4o-mini",
@@ -42,21 +45,3 @@ async function processOne(pattern, prompt, limit) {
     const modifiedPattern = { ...pattern_less, ...result };
     return modifiedPattern;
 }
-
-const final_json = await processOne(test_pattern)
-
-var all_patterns = {}
-
-// for easy retry/continuation
-const rangeStart = 56;
-
-// for (let i = rangeStart; i < pattern_names.length; i++) {
-//     console.log('processing pattern: ', pattern_names[i]);
-//     const mod_pattern = await processOne(patterns[pattern_names[i]]);
-//     console.log('results recieved from: ', pattern_names[i]);
-//     all_patterns = {...all_patterns, [pattern_names[i]]: mod_pattern};
-//     if (i % 5 == 0) {
-//         console.log('saving to file for saving progress');
-//         fs.writeFileSync(`mnm_patterns_ai_${i}.json`, JSON.stringify(all_patterns, null, 2));
-//     }
-// }
