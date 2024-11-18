@@ -1,3 +1,6 @@
+import puppeteer from 'puppeteer';
+import { checkpoint } from './checkpointUtilities.js';
+import { scrapeItemElementsFromLink } from './scrapeItem.js';
 import { globalState } from './state.js'
 
 export const scrapeItems = async () => {
@@ -10,14 +13,14 @@ export const scrapeItems = async () => {
     if (testLimit > 0 && scrapeCount < testLimit) {
       try {
         // this design is too opaque
-        globalState = await scrapeItemElementsFromLink(browser, url, globalState)
+        await scrapeItemElementsFromLink(browser, url)
         scrapeCount++
         // this is the desired update methodology:
         // globalState.items[itemData.title] = itemData
         // globalState.items[itemData.title].scrapeIds.push(scrapeId)
         // console.log('Scraped item: ' + itemData.title)
         if (scrapeCount % globalState.config.checkpointThreshold == 0) {
-          checkpoint(globalState, 'scrapeThreshold')
+          checkpoint(5)
         }
       } catch (e) {
         console.log(e)
@@ -25,7 +28,7 @@ export const scrapeItems = async () => {
     }
   }
   console.log('Scraping complete. Saving checkpoint...')
-  checkpoint(globalState, 'scraping')
+  checkpoint(5)
   // After scraping, log and save checkpoint
   console.log('Checkpoint saved.')
 }

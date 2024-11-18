@@ -1,5 +1,5 @@
 import { globalState } from './state.js'
-import { loadConfig } from './checkpointUtilities.js'
+import { checkpoint, loadConfig } from './checkpointUtilities.js'
 import { Schemes } from './schemes.js'
 import { collectBrowseUrl } from './scrapeBrowse.js'
 
@@ -8,12 +8,12 @@ const { rl } = globalState
 export const intakeProjectInfo = async () => {
   const projectTitle = await rl.question('Enter scraping project title: ')
   const appendCode = await rl.question('Enter project append code (e.g., FPC): ')
+  globalState.projectInfo = { projectTitle, appendCode }
   await loadConfig()
 }
 
 export const intakeSelectors = async () => {
-  // 3. For each browse page, input CSS or XPath selector for item links
-  // const mainContentSelector = await rl.question('Enter CSS selector for main content on item page (to wait on page load): ')
+  const { config } = globalState
   if (globalState.config.selectors) {
     globalState.selectors = globalState.config.selectors
   } else {
@@ -27,9 +27,8 @@ export const intakeSelectors = async () => {
     
     // Store data in global state
     globalState.itemLinkSelector = itemLinkSelector
-    globalState.mainContentSelector = mainContentSelector
     
-    checkpoint(globalState, 'selectors_collected')
+    checkpoint(3)
   }
 }
 
@@ -51,8 +50,7 @@ export const intakeBrowseScheme = async () => {
       console.log('Invalid selection')
   }
 
-  // don't
-  globalState = await collectBrowseUrl(globalState, rl)
+  await collectBrowseUrl(globalState, rl)
 }
 
 

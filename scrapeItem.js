@@ -1,20 +1,20 @@
-import { Schemes } from "./schemes.js"
 
-export const scrapeItemElementsFromLink = async (browser, url, globalState) => {
+import { removeDuplicates } from "./dataUtilities.js"
+import { Schemes } from "./schemes.js"
+import { globalState, replaceState } from "./state.js"
+
+export const scrapeItemElementsFromLink = async (browser, url) => {
   const page = await browser.newPage()
   await page.waitForNetworkIdle()
   await page.goto(url)
 
   try {
     console.log('Getting elements from ', url)
-    const newState = await getInfoFromProductPage(page, globalState)
-    globalState = newState
+    await getInfoFromProductPage(page)
   } catch (e) {console.log(e)}
-
-  return globalState
 }
 
-export const scrapeItemLinksFromBrowse = async (browser, globalState) => {
+export const scrapeItemLinksFromBrowse = async (browser) => {
   const page = await browser.newPage()
 
   const browseUrls = globalState.browseUrls
@@ -43,6 +43,7 @@ export const scrapeItemLinksFromBrowse = async (browser, globalState) => {
         }
 
         // gather links
+        console.log(itemLinkSelector)
         const products_on_page_pre = await page.$$eval(itemLinkSelector, (products, links) => {
           // if a link is already listed, do not add it
           return products.map(p => links.includes(p.href) ? null : p.href)
@@ -72,12 +73,12 @@ export const scrapeItemLinksFromBrowse = async (browser, globalState) => {
         await page.click(nextbtn)
       }
     }
-
-    return globalState
+    // Fight duplication problem
+    globalState.itemLinks = removeDuplicates(globalState.itemLinks)
 }
 
 // Evaluate and assemble elements
-export const getInfoFromProductPage = async (page, globalState) => {
+export const getInfoFromProductPage = async (page) => {
   // Wait for the page to load, enough
   await page.waitForSelector(globalState.mainContentSelector);
 
@@ -96,12 +97,12 @@ export const getInfoFromProductPage = async (page, globalState) => {
     }, containerSelector, tag, attribute)
   }
 
-  const attemptSimpleScrape = async (selector, globalState) => {
+  const attemptSimpleScrape = async (selector) => {
     console.log('Scraping ', selector)
     let result = await page.$eval(globalState.selectors[selector], e => e.textContent)
     if (result.length == 0) {
       globalState.errorCount++
-      throw new error('empty result, for: ', result, selector)
+      throw new Error('empty result, for: ' + result + " " + selector)
     }
     return result
   }
@@ -126,7 +127,7 @@ export const getInfoFromProductPage = async (page, globalState) => {
               break
             default:
               console.log('scraping', selector)
-              const result = await attemptSimpleScrape(selector, globalState)
+              const result = await attemptSimpleScrape(selector)
               item.elements[selector] = result
               success = true
               break
@@ -134,7 +135,7 @@ export const getInfoFromProductPage = async (page, globalState) => {
         } catch (e) {
           console.log('Failure in ' + selector, e)
           globalState.errorCount++
-          const newSelector = await globalState.rl.question('Please enter another selector for ', selector)
+          const newSelector = await globalState.rl.question('Please enter another selector for ' + selector)
           globalState.selectors[selector] = newSelector
         }
       } else {
@@ -144,8 +145,7 @@ export const getInfoFromProductPage = async (page, globalState) => {
   }
 
   globalState.scrapedData[scrapeId] = item
-  
-  return globalState
+  return true
 }
 
 // puppeteer page manipulation utilities

@@ -6,6 +6,14 @@ const rl = readline.createInterface({
   output: process.stdout,
 })
 
+export const replaceState = (newState) => {
+  Object.assign(globalState, newState)
+}
+
+export const updateState = (stateItem) => {
+  // globalstate[stateItem]
+}
+
 // Set up global state file
 // TODO: make const and define elements to be updated
 export const globalState = {
@@ -19,5 +27,7 @@ export const globalState = {
   totalTokens: 0,
   jobLog: {},
   config: {},
-  rl: rl
+  rl: rl,
+  itemLinkSelector: "",
+  mainContentSelector: "",
 }

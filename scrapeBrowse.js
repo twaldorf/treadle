@@ -40,5 +40,4 @@ export const collectBrowseUrl = async ( globalState, rl ) => {
       break
   }
 
-  return globalState
 }

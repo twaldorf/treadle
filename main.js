@@ -6,8 +6,7 @@ import { scrapeItems } from './scrapeItems.js'
 import { cleanData } from './cleanData.js'
 import { processWithLLM } from './llm_process.js'
 import { globalState } from './state.js'
-import { checkpoint } from './checkpointUtilities.js'
-
+import { checkpoint, loadCheckpoint, loadConfig } from './checkpointUtilities.js'
 
 // Pipeline steps and their corresponding functions
 const StepManagers = {
@@ -31,8 +30,11 @@ async function main() {
     const continueFromCheckpoint = await rl.question('Continue from a checkpoint? y / n')
 
     if (continueFromCheckpoint.toLocaleLowerCase() == 'y') {
-      let stepToContinue = await rl.question('Input step number:\n1. Input project info\n2. Input browse scheme\n3. Input selectors\n4. Scrape links\n5. Scrape data\n6. Clean data\n7. Process with LLM')
-      while (stepToContinue < StepManagers[Object.keys(StepManagers).length]) {
+      let stepToContinue = parseInt(await rl.question('Input step number:\n1. Input project info\n2. Input browse scheme\n3. Input selectors\n4. Scrape links\n5. Scrape data\n6. Clean data\n7. Process with LLM'))
+      await loadCheckpoint(stepToContinue - 1)
+      // Load a new config over the old one to account for the use retrying selectors
+      await loadConfig()
+      while (stepToContinue < Object.keys(StepManagers).length) {
         await StepManagers[stepToContinue]()
         stepToContinue++
       }
@@ -45,9 +47,10 @@ async function main() {
     }
 
     // Final output and logging
-    checkpoint(globalState, 'final')
+    checkpoint(10)
     console.log('Scraping process complete. Results saved.')
     rl.close()
+    process.exit(0);
 }
 
 // Load utilities and start CLI
