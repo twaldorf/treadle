@@ -28,26 +28,28 @@ export async function downloadAndSaveImage(url, outputDir, prefix="") {
 
         // Return a promise that resolves when the file is fully written
         return new Promise((resolve, reject) => {
-            writer.on('finish', resolve)
+            writer.on('finish', () => resolve(imageUrl))
             writer.on('error', reject)
         })
     } catch (error) {
         console.error(`Failed to download image: ${imageUrl}`, error)
         throw error
     }
+   return imageUrl
 }
 
 // from ChatGPT
-function normalizeUrl(url) {
+export function normalizeUrl(url) {
   // Check if the URL starts with "//" and prepend "https:" to it
   if (url.startsWith('//')) {
-      return `https:${url}`;
+    url = `https:${url}`
   }
 
   // Validate or fix other common issues with the URL
   try {
-      const normalized = new URL(url);
-      return normalized.href; // Return the normalized full URL
+      const normalized = new URL(url)
+      normalized.search = ""
+      return normalized.href
   } catch (e) {
       console.error(`Invalid URL: ${url}`);
       throw new Error(`Unable to normalize URL: ${url}`);

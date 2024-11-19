@@ -3,14 +3,14 @@ import fs from "fs";
 import { globalState } from './state.js'
 import { checkpoint } from "./checkpointUtilities.js";
 
-const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY});
 
 function prep(obj) {
-    return JSON.stringify(obj, null, 2)
+  return JSON.stringify(obj, null, 2)
 }
 
 export async function processWithLLM() {
-  const apiKey = process.env.OPEN_API_KEY
+  const openai = new OpenAI({apiKey: process.env.OPENAI_API_KEY});
+  const apiKey = process.env.OPENAI_API_KEY
   if (apiKey && globalState.config.prompt) {
     console.log('Processing all scraped patterns with LLM...')
     const { prompt, tokenLimit } = globalState.config
@@ -21,10 +21,10 @@ export async function processWithLLM() {
       // Saturation attempt to fight the duplication problem
       if (patterns.filter((pattern) => pattern.title == scrapedData[scrapeid].title).length == 0) {
         ++count
-        const pattern = await processOne(scrapedData[scrapeid].elements, prompt, tokenLimit)
+        const pattern = await processOne(openai, scrapedData[scrapeid].elements, prompt, tokenLimit)
         patterns.push(pattern)
         globalState.patterns = patterns
-        if (count % globalState.config.checkpointThreshold) {
+        if (count % globalState.config.checkpointThreshold == 0) {
           checkpoint(7)
         }
       } else {
@@ -38,7 +38,7 @@ export async function processWithLLM() {
   }
 }
 
-async function processOne(pattern, prompt, limit) {
+async function processOne(openai, pattern, prompt, limit) {
     const pattern_less = { title: pattern.title, designer: pattern.designer, desc: pattern.desc, notions: pattern.notions, fabric_recommendations: pattern.fabric_recommendations, fabric_requirements: pattern.fabric_requirements }
 
     setTimeout(() => {}, 2000)

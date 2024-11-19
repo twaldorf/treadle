@@ -6,7 +6,7 @@ import { scrapeItems } from './scrapeItems.js'
 import { cleanData } from './cleanData.js'
 import { processWithLLM } from './llm_process.js'
 import { globalState } from './state.js'
-import { checkpoint, loadCheckpoint, loadConfig } from './checkpointUtilities.js'
+import { checkpoint, initConfig, loadCheckpoint, loadConfig } from './checkpointUtilities.js'
 
 // Pipeline steps and their corresponding functions
 const StepManagers = {
@@ -22,9 +22,15 @@ const StepManagers = {
 }
 
 // Main function
-async function main() {
+export default async function main() {
     console.log('Welcome to Treadle scraper.')
     const { rl } = globalState
+
+    // Check for basic config setup, create blank if not
+    const createConfig = await rl.question('Create a blank config file? y / n\n')
+    if (createConfig.toLocaleLowerCase() == 'y') {
+      initConfig()
+    }
 
     // Continue from last checkpoint, with updated config
     const continueFromCheckpoint = await rl.question('Continue from a checkpoint? y / n')

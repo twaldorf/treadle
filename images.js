@@ -7,9 +7,12 @@ export const getImages = async () => {
     if (globalState.scrapedData[scrapeid].elements.imageUrls) {
       const url = globalState.scrapedData[scrapeid].elements.imageUrls[0]
       console.log(globalState.scrapedData[scrapeid].elements.imageUrls)
-      const dir = './images'
+      const dir = './temp/images'
       // const append = globalState.projectInfo.appendCode + globalState.scrapedData[scrapeid].title
-      const success = await downloadAndSaveImage(url, dir)
+      const imgName = await downloadAndSaveImage(url, dir)
+      if (imgName) {
+        globalState.scrapedData[scrapeid].elements.imageName = imgName 
+      }
     }
   }
 }

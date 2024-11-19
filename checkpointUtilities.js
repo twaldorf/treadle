@@ -18,6 +18,7 @@ const prefixes = {
   7: "processWithLLM",
   8: "getImages",
   9: "processImages",
+  10: "final"
 }
 
 // Checkpoint saver
@@ -68,5 +69,21 @@ export const loadConfig = async() => {
   } catch (err) {
       console.error('Error loading config:', err)
       process.exit(1)
+  }
+}
+
+// misc, looking for a home:
+export function initConfig() {
+  const dir = process.cwd()
+  const configExists = fs.readdirSync(dir).filter( fname => fname == "config.json" ).length > 0
+  if (!configExists) {
+    const blankConfigContents = fs.readFileSync(path.join(__dirname, '/blankConfig.json'))
+    fs.writeFileSync(path.join(dir, '/config.json'), blankConfigContents)
+    console.log('Created blank config file at ', dir)
+    console.log('\n Exiting process to allow for manual config setup.')
+    process.exit(0)
+  } else {
+    console.log('Config file already found, aborting.')
+    process.exit(0)
   }
 }
