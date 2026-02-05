@@ -11,6 +11,7 @@ export const cleanData = () => {
           globalState.scrapedData[item].elements[attribute] = cleanSpaces(globalState.scrapedData[item].elements[attribute])
         }
       }
+      // The data looks like:
       // "35356scrapeid735": { "elements": {"title": "Pogonip Pullover",...}, } },
     }
     checkpoint(6)

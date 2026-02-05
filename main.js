@@ -1,12 +1,13 @@
 import 'dotenv/config'
+import { globalState } from './state.js'
 import { intakeBrowseScheme, intakeProjectInfo, intakeSelectors } from './inputUtilities.js'
 import { scrapeLinks } from './scrapeLinks.js'
 import { getImages, processImages } from './images.js'
 import { scrapeItems } from './scrapeItems.js'
 import { cleanData } from './cleanData.js'
 import { processWithLLM } from './llm_process.js'
-import { globalState } from './state.js'
 import { checkpoint, initConfig, loadCheckpoint, loadConfig } from './checkpointUtilities.js'
+import { addAttrToPattern, cutAttrValueAfterSlash, cutImageNameAfterSlash, remove$FromPatternCost, stickScrapeAttrToPattern } from './misc_utils.js'
 
 // Pipeline steps and their corresponding functions
 const StepManagers = {
@@ -23,8 +24,25 @@ const StepManagers = {
 
 // Main function
 export default async function main() {
-    console.log('Welcome to Treadle scraper.')
+    console.log('Treadle scraper is active.')
     const { rl } = globalState
+
+    // Check for basic config setup, create blank if not
+    const runMisc = await rl.question('Run misc utilities? y / n\n')
+    if (runMisc.toLocaleLowerCase() == 'y') {
+      try {
+        loadCheckpoint(10)
+        // add scripts here
+        addAttrToPattern("designer", "True Bias")
+        stickScrapeAttrToPattern('url', 'url')
+        stickScrapeAttrToPattern('price', 'price')
+        remove$FromPatternCost()
+        // cutImageNameAfterSlash()
+        checkpoint(10)
+      } catch (e) { 
+        console.log(e)
+      }
+    }
 
     // Check for basic config setup, create blank if not
     const createConfig = await rl.question('Create a blank config file? y / n\n')

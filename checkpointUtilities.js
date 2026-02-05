@@ -24,10 +24,10 @@ const prefixes = {
 // Checkpoint saver
 export function checkpoint(stepNumber) {
   const content = JSON.stringify(globalState, null, 2)
-  if (!fs.existsSync(__dirname + '/temp/')) {
-    fs.mkdirSync(__dirname + '/temp/')
+  if (!fs.existsSync(process.cwd() + '/temp/')) {
+    fs.mkdirSync(process.cwd() + '/temp/')
   }
-  fs.writeFileSync(`${__dirname}/temp/${prefixes[stepNumber]}_${Date.now().toString()}_checkpoint.json`, content)
+  fs.writeFileSync(`${process.cwd()}/temp/${prefixes[stepNumber]}_${Date.now().toString()}_checkpoint.json`, content)
   console.log('Checkpoint complete at ' + prefixes[stepNumber] + ' with ' + `${globalState.errorCount} errors. Continuing.`)
 }
 
@@ -35,7 +35,7 @@ export const loadCheckpoint = async (stepToContinue) => {
 
   const prefix = prefixes[stepToContinue]
   // Chose most recent file in temp
-  const tempDir = path.join(__dirname, 'temp')
+  const tempDir = path.join(process.cwd(), 'temp')
   const files = fs.readdirSync(tempDir)
     .filter(file => file.startsWith(prefix))
     .map(file => path.join(tempDir, file))
@@ -52,7 +52,7 @@ export const loadCheckpoint = async (stepToContinue) => {
 }
 
 export const loadConfig = async() => {
-  const configPath = path.join(path.resolve(__dirname), 'config.json')
+  const configPath = path.join(path.resolve(process.cwd()), 'config.json')
   let config = {}
   try {
       config = JSON.parse(fs.readFileSync(configPath).toString())

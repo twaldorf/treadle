@@ -98,7 +98,6 @@ export const getInfoFromProductPage = async (page) => {
   }
 
   const attemptSimpleScrape = async (selector) => {
-    console.log('Scraping ', selector)
     let result = await page.$eval(globalState.selectors[selector], e => e.textContent)
     if (result.length == 0) {
       globalState.errorCount++
@@ -115,23 +114,45 @@ export const getInfoFromProductPage = async (page) => {
 
     while (!success && retryLimit && attempts < retryLimit) {
       console.log(selector)
-      if (globalState.selectors[selector].length > 0) {
+
+      if (globalState.selectors[selector].length > 0 || globalState.selectors[selector].accordion) { // skip missing selectors, account for accordions
+
         try {
           attempts++
           console.log(attempts)
-          switch (selector) {
-            case "imageUrls":
-              const images = await scrapeImageUrls(page, globalState.selectors[selector], globalState.config.image_tag, globalState.config.image_url_attribute)
-              item.elements[selector] = images
-              success = true
-              break
-            default:
-              console.log('scraping', selector)
-              const result = await attemptSimpleScrape(selector)
-              item.elements[selector] = result
-              success = true
-              break
+
+          // Attempt to expose elements buried in an accordion
+          if (globalState.selectors[selector].accordion == true) {
+            console.log('Attemping to click to expose accordion content for ', selector)
+            await clickWithRetry(page, globalState.selectors[selector].handle_to_click, 1)
+            let result = await page.$eval(globalState.selectors[selector].selector, e => e.textContent)
+
+            if (result.length == 0) {
+              globalState.errorCount++
+              throw new Error('empty result, for: ' + result + " " + selector)
+            }
+
+            item.elements[selector] = result
+            success = true
+
+          } else {
+
+            switch (selector) {
+              case "imageUrls":
+                const images = await scrapeImageUrls(page, globalState.selectors[selector], globalState.config.image_tag, globalState.config.image_url_attribute)
+                item.elements[selector] = images
+                success = true
+                break
+              default:
+                console.log('scraping', selector)
+                const result = await attemptSimpleScrape(selector)
+                item.elements[selector] = result
+                success = true
+                break
+            }
+
           }
+
         } catch (e) {
           console.log('Failure in ' + selector, e)
           globalState.errorCount++
@@ -172,3 +193,18 @@ async function autoScroll(page) {
       })
   })
 }
+
+// from ChatGPT
+const clickWithRetry = async (page, selector, retries = 3) => {
+  console.log('click')
+  for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+          await page.click(selector)
+          page.waitFor(200)
+          return;
+      } catch (error) {
+          console.warn(`Attempt ${attempt} to click failed for selector: ${selector}`)
+          // if (attempt === retries) throw error;
+      }
+  }
+};

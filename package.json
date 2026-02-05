@@ -4,7 +4,8 @@
   "description": "A CLI tool for scraping and processing data using Node.js, including integration with ChatGPT API for data cleaning.",
   "main": "main.js",
   "bin": {
-    "scraper-cli": "./scraper-cli.js"
+    "scraper-cli": "./scraper-cli.js",
+    "misc": "./misc_utils.js"
   },
   "scripts": {
     "start": "node main.js",
